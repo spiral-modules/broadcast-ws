@@ -4,6 +4,14 @@ type rpcService struct {
 	svc *Service
 }
 
-func (r *rpcService) Warmup(topic string, ok *bool) error {
-	return nil
+// Subscribe subscribes broadcast client to the given topic ahead of any websocket connections.
+func (r *rpcService) Subscribe(topic string, ok *bool) error {
+	*ok = true
+	return r.svc.client.Subscribe(topic)
+}
+
+// SubscribePattern subscribes broadcast client to
+func (r *rpcService) SubscribePattern(pattern string, ok *bool) error {
+	*ok = true
+	return r.svc.client.SubscribePattern(pattern)
 }

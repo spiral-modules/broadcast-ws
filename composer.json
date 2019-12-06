@@ -1,0 +1,17 @@
+{
+  "name": "spiral/broadcast-ws",
+  "type": "library",
+  "description": "Websocket Broadcasting",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Wolfy-J",
+      "email": "wolfy.jd@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2",
+    "ext-json": "*",
+    "spiral/broadcast": "^1.1"
+  }
+}

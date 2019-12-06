@@ -10,7 +10,6 @@ import (
 	"github.com/spiral/roadrunner/service/rpc"
 	"net/http"
 	"strings"
-	"time"
 )
 
 // ID defines service id.
@@ -25,8 +24,6 @@ type Service struct {
 	listeners []func(event int, ctx interface{})
 	stop      chan error
 }
-
-type CommandHandler func(ctx *ConnContext, cmd []byte)
 
 // AddListener attaches server event controller.
 func (s *Service) AddListener(l func(event int, ctx interface{})) {
@@ -70,13 +67,6 @@ func (s *Service) Init(
 func (s *Service) Serve() error {
 	defer s.client.Close()
 	defer s.connPool.close()
-
-	go func() {
-		for {
-			time.Sleep(time.Second)
-			s.client.Publish(&broadcast.Message{Topic: "test", Payload: []byte(`"hello"`)})
-		}
-	}()
 
 	s.stop = make(chan error)
 	return <-s.stop
@@ -192,11 +182,6 @@ func (s *Service) serveConn(ctx *ConnContext, f http.HandlerFunc, r *http.Reques
 			}
 
 			s.throw(EventLeave, &TopicEvent{Conn: ctx.Conn, Topics: topics})
-		default:
-			// todo: implement
-			// if handler, ok := s.commands[cmd.Cmd]; ok {
-			//  handler(ConnContext, cmd.Args)
-			// }
 		}
 	}
 }
@@ -235,7 +220,7 @@ func (s *Service) assertServerAccess(f http.HandlerFunc, r *http.Request) *acces
 	return nil
 }
 
-// assertAccess checks if user can access given channel, the application will receive all user headers and cookies.
+// assertAccess checks if user can access given upstream, the application will receive all user headers and cookies.
 // the decision to authorize user will be based on response code (200).
 func (s *Service) assertAccess(f http.HandlerFunc, r *http.Request, channels ...string) error {
 	if err := attributes.Set(r, "ws:joinTopics", strings.Join(channels, ",")); err != nil {

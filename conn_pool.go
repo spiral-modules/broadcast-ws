@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// manages a set of websocket connections
 type connPool struct {
 	errHandler func(err error, conn *websocket.Conn)
 
@@ -18,6 +19,7 @@ type connPool struct {
 	conns map[*websocket.Conn]*ConnContext
 }
 
+// create new connection pool
 func newPool(client *broadcast.Client, errHandler func(err error, conn *websocket.Conn)) *connPool {
 	cp := &connPool{
 		client:     client,
@@ -37,11 +39,8 @@ func newPool(client *broadcast.Client, errHandler func(err error, conn *websocke
 	return cp
 }
 
-// todo: think about topology?
-
+// connect the websocket and register client in message router
 func (cp *connPool) connect(conn *websocket.Conn) (*ConnContext, error) {
-	// todo: what if already stopped?
-
 	ctx := &ConnContext{
 		Conn:     conn,
 		Topics:   []string{},
@@ -52,17 +51,12 @@ func (cp *connPool) connect(conn *websocket.Conn) (*ConnContext, error) {
 	cp.conns[conn] = ctx
 	cp.mu.Unlock()
 
-	go func() {
-		for msg := range ctx.upstream {
-			if err := conn.WriteJSON(msg); err != nil {
-				cp.errHandler(err, conn)
-			}
-		}
-	}()
+	go ctx.serve(cp.errHandler)
 
 	return ctx, nil
 }
 
+// disconnect the websocket
 func (cp *connPool) disconnect(conn *websocket.Conn) error {
 	cp.mu.Lock()
 	defer cp.mu.Unlock()
@@ -76,14 +70,13 @@ func (cp *connPool) disconnect(conn *websocket.Conn) error {
 		cp.errHandler(err, conn)
 	}
 
-	// todo: unsubscribe
-
 	delete(cp.conns, conn)
 	close(ctx.upstream)
 
 	return conn.Close()
 }
 
+// subscribe the connection
 func (cp *connPool) subscribe(ctx *ConnContext, topics ...string) error {
 	cp.mur.Lock()
 	defer cp.mur.Unlock()
@@ -98,6 +91,7 @@ func (cp *connPool) subscribe(ctx *ConnContext, topics ...string) error {
 	return nil
 }
 
+// unsubscribe the connection
 func (cp *connPool) unsubscribe(ctx *ConnContext, topics ...string) error {
 	cp.mur.Lock()
 	defer cp.mur.Unlock()
@@ -112,6 +106,7 @@ func (cp *connPool) unsubscribe(ctx *ConnContext, topics ...string) error {
 	return nil
 }
 
+// close the connection pool and disconnect all listeners
 func (cp *connPool) close() {
 	cp.mu.Lock()
 	defer cp.mu.Unlock()

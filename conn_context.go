@@ -6,6 +6,7 @@ import (
 	"github.com/spiral/broadcast"
 )
 
+// ConnContext carries information about websocket connection and it's topics.
 type ConnContext struct {
 	// Conn to the client.
 	Conn *websocket.Conn
@@ -17,6 +18,7 @@ type ConnContext struct {
 	upstream chan *broadcast.Message
 }
 
+// Sends message directly to the client.
 func (ctx *ConnContext) SendMessage(topic string, payload interface{}) (err error) {
 	msg := &broadcast.Message{Topic: topic}
 	msg.Payload, err = json.Marshal(payload)
@@ -26,6 +28,14 @@ func (ctx *ConnContext) SendMessage(topic string, payload interface{}) (err erro
 	}
 
 	return err
+}
+
+func (ctx *ConnContext) serve(errHandler func(err error, conn *websocket.Conn)) {
+	for msg := range ctx.upstream {
+		if err := ctx.Conn.WriteJSON(msg); err != nil {
+			errHandler(err, ctx.Conn)
+		}
+	}
 }
 
 func (ctx *ConnContext) addTopics(topics ...string) {

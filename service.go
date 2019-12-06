@@ -120,6 +120,10 @@ func (s *Service) serveConn(ctx *ConnContext, f http.HandlerFunc, r *http.Reques
 		s.throw(EventDisconnect, ctx.Conn)
 	}()
 
+	s.handleCommands(ctx, f, r)
+}
+
+func (s *Service) handleCommands(ctx *ConnContext, f http.HandlerFunc, r *http.Request) {
 	cmd := &Command{}
 	for {
 		if err := ctx.Conn.ReadJSON(cmd); err != nil {

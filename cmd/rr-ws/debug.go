@@ -1,4 +1,4 @@
-package rr_ws
+package rrws
 
 import (
 	"github.com/gorilla/websocket"
@@ -26,7 +26,6 @@ type debugger struct{ logger *logrus.Logger }
 
 // listener listens to http events and generates nice looking output.
 func (s *debugger) listener(event int, ctx interface{}) {
-
 	switch event {
 	case ws.EventConnect:
 		conn := ctx.(*websocket.Conn)

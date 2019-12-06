@@ -18,7 +18,7 @@ type ConnContext struct {
 	upstream chan *broadcast.Message
 }
 
-// Sends message directly to the client.
+// SendMessage message directly to the client.
 func (ctx *ConnContext) SendMessage(topic string, payload interface{}) (err error) {
 	msg := &broadcast.Message{Topic: topic}
 	msg.Payload, err = json.Marshal(payload)

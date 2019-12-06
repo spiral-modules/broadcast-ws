@@ -8,4 +8,5 @@ require (
 	github.com/spf13/cobra v0.0.5 // indirect
 	github.com/spiral/broadcast v0.0.0-20191205145228-118503a8d0e1
 	github.com/spiral/roadrunner v1.5.2
+	github.com/stretchr/testify v1.3.0
 )

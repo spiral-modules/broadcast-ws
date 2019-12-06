@@ -10,6 +10,7 @@ import (
 	"github.com/spiral/roadrunner/service/rpc"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 // ID defines service id.
@@ -22,6 +23,7 @@ type Service struct {
 	client    *broadcast.Client
 	connPool  *connPool
 	listeners []func(event int, ctx interface{})
+	mu        sync.Mutex
 	stop      chan error
 }
 
@@ -68,12 +70,18 @@ func (s *Service) Serve() error {
 	defer s.client.Close()
 	defer s.connPool.close()
 
+	s.mu.Lock()
 	s.stop = make(chan error)
+	s.mu.Unlock()
+
 	return <-s.stop
 }
 
 // Stop the service and disconnect all connections.
 func (s *Service) Stop() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	close(s.stop)
 }
 

@@ -1,4 +1,4 @@
-package rrws
+package ws
 
 import (
 	"github.com/prometheus/client_golang/prometheus"

@@ -54,7 +54,7 @@ func (s *Service) Init(
 
 	if env != nil {
 		// ensure that underlying kernel knows what route to handle
-		env.SetEnv("RR_BROADCAST_URL", cfg.Path)
+		env.SetEnv("RR_BROADCAST_PATH", cfg.Path)
 	}
 
 	// init all this stuff
@@ -97,7 +97,11 @@ func (s *Service) middleware(f http.HandlerFunc) http.HandlerFunc {
 		// checking server access
 		if err := newValidator().assertServerAccess(f, r); err != nil {
 			// show the error to the user
-			err.(*accessValidator).copy(w)
+			if av, ok := err.(*accessValidator); ok {
+				av.copy(w)
+			} else {
+				w.WriteHeader(400)
+			}
 			return
 		}
 

@@ -68,8 +68,7 @@ func (w *accessValidator) Error() string {
 // case of error
 func (w *accessValidator) assertServerAccess(f http.HandlerFunc, r *http.Request) error {
 	if err := attributes.Set(r, "ws:joinServer", true); err != nil {
-		//	return err
-		// todo: need to update it
+		return err
 	}
 
 	defer delete(attributes.All(r), "ws:joinServer")
@@ -87,7 +86,7 @@ func (w *accessValidator) assertServerAccess(f http.HandlerFunc, r *http.Request
 // the decision to authorize user will be based on response code (200).
 func (w *accessValidator) assertTopicsAccess(f http.HandlerFunc, r *http.Request, channels ...string) error {
 	if err := attributes.Set(r, "ws:joinTopics", strings.Join(channels, ",")); err != nil {
-		return w
+		return err
 	}
 
 	defer delete(attributes.All(r), "ws:joinTopics")

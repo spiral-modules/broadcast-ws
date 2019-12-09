@@ -344,6 +344,10 @@ func Test_Service_EmptyTopics(t *testing.T) {
 
 	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"leave", "args":["a"]}`)))
 	assert.Equal(t, `{"topic":"@leave","payload":["a"]}`, readStr(<-read))
+
+	// must be automatically closed during service stop
+	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["a"]}`)))
+	assert.Equal(t, `{"topic":"@join","payload":["a"]}`, readStr(<-read))
 }
 
 func Test_Service_BadTopics(t *testing.T) {
@@ -573,8 +577,90 @@ func Test_Service_Warmup(t *testing.T) {
 		}
 	}()
 
+	// not delivered
+	assert.NoError(t, br.client.Publish(&broadcast.Message{Topic: "topic", Payload: []byte(`"hello"`)}))
+
 	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["topic"]}`))
 	assert.NoError(t, err)
 
 	assert.Equal(t, `{"topic":"@join","payload":["topic"]}`, readStr(<-read))
+
+	assert.NoError(t, br.client.Publish(&broadcast.Message{Topic: "topic", Payload: []byte(`"hello"`)}))
+	assert.Equal(t, `{"topic":"topic","payload":"hello"}`, readStr(<-read))
+}
+
+func Test_Service_Stop(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(env.ID, &env.Service{})
+	c.Register(rpc.ID, &rpc.Service{})
+	c.Register(rrhttp.ID, &rrhttp.Service{})
+	c.Register(broadcast.ID, &broadcast.Service{})
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{
+		http: `{
+			"address": ":6033",
+			"workers":{"command": "php tests/worker-ok.php", "pool.numWorkers": 1}
+		}`,
+		rpc:       `{"listen":"tcp://127.0.0.1:6009"}`,
+		ws:        `{"path":"/ws"}`,
+		broadcast: `{}`,
+	}))
+
+	rp, _ := c.Get(rpc.ID)
+
+	b, _ := c.Get(ID)
+	br := b.(*Service)
+
+	done := make(chan interface{})
+	br.AddListener(func(event int, ctx interface{}) {
+		if event == EventConnect {
+			close(done)
+		}
+	})
+
+	go func() { c.Serve() }()
+	time.Sleep(time.Millisecond * 100)
+	defer c.Stop()
+
+	client, err := rp.(*rpc.Service).Client()
+	assert.NoError(t, err)
+
+	var ok bool
+	assert.NoError(t, client.Call("ws.SubscribePattern", "test", &ok))
+	assert.True(t, ok)
+	assert.NoError(t, client.Call("ws.Subscribe", "test", &ok))
+	assert.True(t, ok)
+
+	u := url.URL{Scheme: "ws", Host: "localhost:6033", Path: "/ws"}
+
+	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	assert.NoError(t, err)
+	defer conn.Close()
+
+	<-done
+
+	read := make(chan interface{})
+
+	go func() {
+		defer close(read)
+		for {
+			_, message, err := conn.ReadMessage()
+			if err != nil {
+				return
+			}
+			read <- message
+		}
+	}()
+
+	// not delivered
+	assert.NoError(t, br.client.Publish(&broadcast.Message{Topic: "topic", Payload: []byte(`"hello"`)}))
+
+	br.Stop()
+
+	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["topic"]}`))
+	assert.NoError(t, err)
 }

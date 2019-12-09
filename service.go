@@ -1,15 +1,12 @@
 package ws
 
 import (
-	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/spiral/broadcast"
 	"github.com/spiral/roadrunner/service/env"
 	rhttp "github.com/spiral/roadrunner/service/http"
-	"github.com/spiral/roadrunner/service/http/attributes"
 	"github.com/spiral/roadrunner/service/rpc"
 	"net/http"
-	"strings"
 	"sync"
 	"sync/atomic"
 )
@@ -98,9 +95,9 @@ func (s *Service) middleware(f http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// checking server access
-		if err := s.assertServerAccess(f, r); err != nil {
+		if err := newValidator().assertServerAccess(f, r); err != nil {
 			// show the error to the user
-			err.copy(w)
+			err.(*accessValidator).copy(w)
 			return
 		}
 
@@ -155,7 +152,7 @@ func (s *Service) handleCommands(ctx *ConnContext, f http.HandlerFunc, r *http.R
 				continue
 			}
 
-			if err := s.assertAccess(f, r, topics...); err != nil {
+			if err := newValidator().assertTopicsAccess(f, r, topics...); err != nil {
 				s.reportError(err, ctx.Conn)
 
 				if err := ctx.SendMessage("@deny", topics); err != nil {
@@ -212,45 +209,4 @@ func (s *Service) throw(event int, ctx interface{}) {
 	for _, l := range s.listeners {
 		l(event, ctx)
 	}
-}
-
-// todo: move it into validator (!)
-
-// assertServerAccess checks if user can join server and returns error and body if user can not. Must return nil in
-// case of error
-func (s *Service) assertServerAccess(f http.HandlerFunc, r *http.Request) *accessValidator {
-	if err := attributes.Set(r, "ws:joinServer", true); err != nil {
-		//	return err
-		// todo: need to update it
-	}
-
-	defer delete(attributes.All(r), "ws:joinServer")
-
-	w := newValidator()
-	f(w, r)
-
-	if !w.IsOK() {
-		return w
-	}
-
-	return nil
-}
-
-// assertAccess checks if user can access given upstream, the application will receive all user headers and cookies.
-// the decision to authorize user will be based on response code (200).
-func (s *Service) assertAccess(f http.HandlerFunc, r *http.Request, channels ...string) error {
-	if err := attributes.Set(r, "ws:joinTopics", strings.Join(channels, ",")); err != nil {
-		return err
-	}
-
-	defer delete(attributes.All(r), "ws:joinTopics")
-
-	w := newValidator()
-	f(w, r)
-
-	if !w.IsOK() {
-		return errors.New(string(w.Body()))
-	}
-
-	return nil
 }

@@ -2,8 +2,10 @@ package ws
 
 import (
 	"bytes"
+	"github.com/spiral/roadrunner/service/http/attributes"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type accessValidator struct {
@@ -55,4 +57,46 @@ func (w *accessValidator) IsOK() bool {
 // Body returns response body to rely to user.
 func (w *accessValidator) Body() []byte {
 	return w.buffer.Bytes()
+}
+
+// Error contains server response.
+func (w *accessValidator) Error() string {
+	return w.buffer.String()
+}
+
+// assertServerAccess checks if user can join server and returns error and body if user can not. Must return nil in
+// case of error
+func (w *accessValidator) assertServerAccess(f http.HandlerFunc, r *http.Request) error {
+	if err := attributes.Set(r, "ws:joinServer", true); err != nil {
+		//	return err
+		// todo: need to update it
+	}
+
+	defer delete(attributes.All(r), "ws:joinServer")
+
+	f(w, r)
+
+	if !w.IsOK() {
+		return w
+	}
+
+	return nil
+}
+
+// assertAccess checks if user can access given upstream, the application will receive all user headers and cookies.
+// the decision to authorize user will be based on response code (200).
+func (w *accessValidator) assertTopicsAccess(f http.HandlerFunc, r *http.Request, channels ...string) error {
+	if err := attributes.Set(r, "ws:joinTopics", strings.Join(channels, ",")); err != nil {
+		return w
+	}
+
+	defer delete(attributes.All(r), "ws:joinTopics")
+
+	f(w, r)
+
+	if !w.IsOK() {
+		return w
+	}
+
+	return nil
 }

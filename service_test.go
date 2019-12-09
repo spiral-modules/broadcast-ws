@@ -157,6 +157,24 @@ func Test_Service_EnvPath(t *testing.T) {
 	assert.Equal(t, []byte("/ws"), b)
 }
 
+func Test_Service_Disabled(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(env.ID, &env.Service{})
+	c.Register(broadcast.ID, &broadcast.Service{})
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{
+		ws:        `{"path":"/ws"}`,
+		broadcast: `{}`,
+	}))
+
+	_, s := c.Get(ID)
+	assert.Equal(t, service.StatusInactive, s)
+}
+
 func Test_Service_JoinTopic(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)

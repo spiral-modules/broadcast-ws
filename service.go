@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
 
 // ID defines service id.
@@ -24,6 +25,7 @@ type Service struct {
 	connPool  *connPool
 	listeners []func(event int, ctx interface{})
 	mu        sync.Mutex
+	stopped   int32
 	stop      chan error
 }
 
@@ -82,7 +84,9 @@ func (s *Service) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	close(s.stop)
+	if !atomic.CompareAndSwapInt32(&s.stopped, 0, 1) {
+		close(s.stop)
+	}
 }
 
 // middleware intercepts websocket connections.

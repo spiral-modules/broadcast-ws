@@ -47,6 +47,7 @@ func (s *Service) Init(
 	s.cfg = cfg
 	s.client = broadcast.NewClient()
 	s.connPool = newPool(s.client, s.reportError)
+	s.stopped = 0
 
 	if err := rpc.Register(ID, &rpcService{svc: s}); err != nil {
 		return false, err
@@ -81,7 +82,7 @@ func (s *Service) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if !atomic.CompareAndSwapInt32(&s.stopped, 0, 1) {
+	if atomic.CompareAndSwapInt32(&s.stopped, 0, 1) {
 		close(s.stop)
 	}
 }

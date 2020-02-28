@@ -161,7 +161,7 @@ func (s *Service) handleCommands(ctx *ConnContext, f http.HandlerFunc, r *http.R
 			if err := newValidator().assertTopicsAccess(f, r, topics...); err != nil {
 				s.reportError(err, ctx.Conn)
 
-				if err := ctx.SendMessage("@deny", topics); err != nil {
+				if err := ctx.SendMessage("#join", topics); err != nil {
 					s.reportError(err, ctx.Conn)
 					return
 				}
@@ -173,6 +173,7 @@ func (s *Service) handleCommands(ctx *ConnContext, f http.HandlerFunc, r *http.R
 				s.reportError(err, ctx.Conn)
 				return
 			}
+
 			if err := ctx.SendMessage("@join", topics); err != nil {
 				s.reportError(err, ctx.Conn)
 				return

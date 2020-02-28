@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/spiral/broadcast"
 	"github.com/spiral/roadrunner/service/env"
@@ -138,17 +139,17 @@ func (s *Service) serveConn(ctx *ConnContext, f http.HandlerFunc, r *http.Reques
 }
 
 func (s *Service) handleCommands(ctx *ConnContext, f http.HandlerFunc, r *http.Request) {
-	cmd := &Command{}
+	cmd := &broadcast.Message{}
 	for {
 		if err := ctx.Conn.ReadJSON(cmd); err != nil {
 			s.reportError(err, ctx.Conn)
 			return
 		}
 
-		switch cmd.Cmd {
+		switch cmd.Topic {
 		case "join":
 			topics := make([]string, 0)
-			if err := cmd.Unmarshal(&topics); err != nil {
+			if err := unmarshalCommand(cmd, &topics); err != nil {
 				s.reportError(err, ctx.Conn)
 				return
 			}
@@ -180,7 +181,7 @@ func (s *Service) handleCommands(ctx *ConnContext, f http.HandlerFunc, r *http.R
 			s.throw(EventJoin, &TopicEvent{Conn: ctx.Conn, Topics: topics})
 		case "leave":
 			topics := make([]string, 0)
-			if err := cmd.Unmarshal(&topics); err != nil {
+			if err := unmarshalCommand(cmd, &topics); err != nil {
 				s.reportError(err, ctx.Conn)
 				return
 			}
@@ -214,4 +215,9 @@ func (s *Service) throw(event int, ctx interface{}) {
 	for _, l := range s.listeners {
 		l(event, ctx)
 	}
+}
+
+// unmarshalCommand command data.
+func unmarshalCommand(msg *broadcast.Message, v interface{}) error {
+	return json.Unmarshal(msg.Payload, v)
 }

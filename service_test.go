@@ -219,7 +219,7 @@ func Test_Service_JoinTopic(t *testing.T) {
 		}
 	}()
 
-	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["topic"]}`))
+	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":["topic"]}`))
 	assert.NoError(t, err)
 
 	assert.Equal(t, `{"topic":"@join","payload":["topic"]}`, readStr(<-read))
@@ -270,7 +270,7 @@ func Test_Service_DenyJoin(t *testing.T) {
 		}
 	}()
 
-	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["topic"]}`))
+	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":["topic"]}`))
 	assert.NoError(t, err)
 
 	out := <-read
@@ -353,18 +353,18 @@ func Test_Service_EmptyTopics(t *testing.T) {
 		}
 	}()
 
-	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":[]}`)))
+	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":[]}`)))
 
-	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["a"]}`)))
+	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":["a"]}`)))
 	assert.Equal(t, `{"topic":"@join","payload":["a"]}`, readStr(<-read))
 
-	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"leave", "args":[]}`)))
+	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"leave", "payload":[]}`)))
 
-	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"leave", "args":["a"]}`)))
+	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"leave", "payload":["a"]}`)))
 	assert.Equal(t, `{"topic":"@leave","payload":["a"]}`, readStr(<-read))
 
 	// must be automatically closed during service stop
-	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["a"]}`)))
+	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":["a"]}`)))
 	assert.Equal(t, `{"topic":"@join","payload":["a"]}`, readStr(<-read))
 }
 
@@ -413,7 +413,7 @@ func Test_Service_BadTopics(t *testing.T) {
 		}
 	}()
 
-	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":"hello"}`)))
+	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":"hello"}`)))
 	assert.Error(t, (<-read).(error))
 }
 
@@ -462,7 +462,7 @@ func Test_Service_BadTopicsLeave(t *testing.T) {
 		}
 	}()
 
-	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"leave", "args":"hello"}`)))
+	assert.NoError(t, conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"leave", "payload":"hello"}`)))
 	assert.Error(t, (<-read).(error))
 }
 
@@ -522,7 +522,7 @@ func Test_Service_Events(t *testing.T) {
 		}
 	}()
 
-	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["topic"]}`))
+	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":["topic"]}`))
 	assert.NoError(t, err)
 
 	assert.Equal(t, `{"topic":"@join","payload":["topic"]}`, readStr(<-read))
@@ -598,7 +598,7 @@ func Test_Service_Warmup(t *testing.T) {
 	// not delivered
 	assert.NoError(t, br.client.Publish(&broadcast.Message{Topic: "topic", Payload: []byte(`"hello"`)}))
 
-	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["topic"]}`))
+	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":["topic"]}`))
 	assert.NoError(t, err)
 
 	assert.Equal(t, `{"topic":"@join","payload":["topic"]}`, readStr(<-read))
@@ -679,6 +679,6 @@ func Test_Service_Stop(t *testing.T) {
 
 	br.Stop()
 
-	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"cmd":"join", "args":["topic"]}`))
+	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":["topic"]}`))
 	assert.NoError(t, err)
 }

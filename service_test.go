@@ -273,8 +273,7 @@ func Test_Service_DenyJoin(t *testing.T) {
 	err = conn.WriteMessage(websocket.TextMessage, []byte(`{"topic":"join", "payload":["topic"]}`))
 	assert.NoError(t, err)
 
-	out := <-read
-	assert.Error(t, out.(error))
+	assert.Equal(t, `{"topic":"#join","payload":["topic"]}`, readStr(<-read))
 }
 
 func Test_Service_DenyJoinServer(t *testing.T) {

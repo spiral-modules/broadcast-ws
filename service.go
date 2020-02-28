@@ -166,7 +166,7 @@ func (s *Service) handleCommands(ctx *ConnContext, f http.HandlerFunc, r *http.R
 					return
 				}
 
-				return
+				continue
 			}
 
 			if err := s.connPool.subscribe(ctx, topics...); err != nil {

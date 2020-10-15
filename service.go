@@ -36,7 +36,7 @@ func (s *Service) AddListener(l func(event int, ctx interface{})) {
 func (s *Service) Init(
 	cfg *Config,
 	env env.Environment,
-	http *rhttp.Service,
+	rttp *rhttp.Service,
 	rpc *rpc.Service,
 	broadcast *broadcast.Service,
 ) (bool, error) {
@@ -61,7 +61,14 @@ func (s *Service) Init(
 
 	// init all this stuff
 	s.upgrade = websocket.Upgrader{}
-	http.AddMiddleware(s.middleware)
+
+	if s.cfg.NoOrigin {
+		s.upgrade.CheckOrigin = func(r *http.Request) bool {
+			return true
+		}
+	}
+
+	rttp.AddMiddleware(s.middleware)
 
 	return true, nil
 }

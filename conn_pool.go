@@ -30,10 +30,15 @@ func newPool(client *broadcast.Client, errHandler func(err error, conn *websocke
 	}
 
 	go func() {
-		for msg := range cp.client.Channel() {
-			cp.mur.Lock()
-			cp.router.Dispatch(msg)
-			cp.mur.Unlock()
+		for {
+			select {
+			case msg, ok := <-cp.client.Channel():
+				if !ok {
+					cp.mur.Lock()
+					cp.router.Dispatch(msg)
+					cp.mur.Unlock()
+				}
+			}
 		}
 	}()
 

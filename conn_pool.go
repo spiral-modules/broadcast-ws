@@ -2,9 +2,10 @@ package ws
 
 import (
 	"errors"
-	"github.com/gorilla/websocket"
-	"github.com/spiral/broadcast"
 	"sync"
+
+	"github.com/gorilla/websocket"
+	"github.com/spiral/broadcast/v2"
 )
 
 // manages a set of websocket connections
@@ -116,10 +117,11 @@ func (cp *connPool) close() {
 			cp.errHandler(err, conn)
 		}
 
-		delete(cp.conns, conn)
-		close(ctx.upstream)
 		if err := conn.Close(); err != nil {
 			cp.errHandler(err, conn)
 		}
+
+		delete(cp.conns, conn)
+		close(ctx.upstream)
 	}
 }

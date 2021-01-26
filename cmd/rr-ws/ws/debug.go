@@ -1,13 +1,14 @@
 package ws
 
 import (
+	"strings"
+
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	ws "github.com/spiral/broadcast-ws"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/cmd/util"
-	"strings"
 )
 
 func init() {

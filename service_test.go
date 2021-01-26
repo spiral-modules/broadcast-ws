@@ -2,21 +2,22 @@ package ws
 
 import (
 	"encoding/json"
-	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
-	"github.com/sirupsen/logrus/hooks/test"
-	"github.com/spiral/broadcast"
-	"github.com/spiral/roadrunner/service"
-	"github.com/spiral/roadrunner/service/env"
-	rrhttp "github.com/spiral/roadrunner/service/http"
-	"github.com/spiral/roadrunner/service/rpc"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/spiral/broadcast/v2"
+	"github.com/spiral/roadrunner/service"
+	"github.com/spiral/roadrunner/service/env"
+	rrhttp "github.com/spiral/roadrunner/service/http"
+	"github.com/spiral/roadrunner/service/rpc"
+	"github.com/stretchr/testify/assert"
 )
 
 type testCfg struct {

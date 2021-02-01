@@ -71,7 +71,6 @@ func (cp *connPool) disconnect(conn *websocket.Conn) error {
 	}
 
 	delete(cp.conns, conn)
-	close(ctx.upstream)
 
 	return conn.Close()
 }
@@ -117,7 +116,7 @@ func (cp *connPool) close() {
 		}
 
 		delete(cp.conns, conn)
-		close(ctx.upstream)
+
 		if err := conn.Close(); err != nil {
 			cp.errHandler(err, conn)
 		}

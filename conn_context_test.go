@@ -1,8 +1,9 @@
 package ws
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConnContext_ManageTopics(t *testing.T) {

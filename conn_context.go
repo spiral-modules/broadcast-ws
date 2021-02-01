@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+
 	"github.com/gorilla/websocket"
 	"github.com/spiral/broadcast"
 )

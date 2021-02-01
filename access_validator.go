@@ -2,10 +2,11 @@ package ws
 
 import (
 	"bytes"
-	"github.com/spiral/roadrunner/service/http/attributes"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/spiral/roadrunner/service/http/attributes"
 )
 
 type accessValidator struct {

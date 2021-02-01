@@ -2,9 +2,10 @@ package ws
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/spiral/roadrunner/service"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type mockCfg struct{ cfg string }

@@ -2,6 +2,13 @@ package ws
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strings"
+	"testing"
+	"time"
+
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
@@ -11,12 +18,6 @@ import (
 	rrhttp "github.com/spiral/roadrunner/service/http"
 	"github.com/spiral/roadrunner/service/rpc"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"strings"
-	"testing"
-	"time"
 )
 
 type testCfg struct {

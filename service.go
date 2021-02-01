@@ -2,14 +2,15 @@ package ws
 
 import (
 	"encoding/json"
+	"net/http"
+	"sync"
+	"sync/atomic"
+
 	"github.com/gorilla/websocket"
 	"github.com/spiral/broadcast"
 	"github.com/spiral/roadrunner/service/env"
 	rhttp "github.com/spiral/roadrunner/service/http"
 	"github.com/spiral/roadrunner/service/rpc"
-	"net/http"
-	"sync"
-	"sync/atomic"
 )
 
 // ID defines service id.

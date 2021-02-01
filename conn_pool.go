@@ -2,9 +2,10 @@ package ws
 
 import (
 	"errors"
+	"sync"
+
 	"github.com/gorilla/websocket"
 	"github.com/spiral/broadcast"
-	"sync"
 )
 
 // manages a set of websocket connections

@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gorilla/websocket"
-	"github.com/spiral/broadcast"
+	"github.com/spiral/broadcast/v2"
 	"github.com/spiral/roadrunner/service/env"
 	rhttp "github.com/spiral/roadrunner/service/http"
 	"github.com/spiral/roadrunner/service/rpc"

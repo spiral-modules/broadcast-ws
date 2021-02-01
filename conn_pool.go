@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
-	"github.com/spiral/broadcast"
+	"github.com/spiral/broadcast/v2"
 )
 
 // manages a set of websocket connections

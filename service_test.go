@@ -69,7 +69,7 @@ func Test_HttpService_Echo(t *testing.T) {
 		}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
@@ -78,7 +78,9 @@ func Test_HttpService_Echo(t *testing.T) {
 
 	r, err := http.DefaultClient.Do(req)
 	assert.NoError(t, err)
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
 	b, _ := ioutil.ReadAll(r.Body)
 
@@ -101,7 +103,7 @@ func Test_HttpService_Echo400(t *testing.T) {
 		}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
@@ -110,7 +112,9 @@ func Test_HttpService_Echo400(t *testing.T) {
 
 	r, err := http.DefaultClient.Do(req)
 	assert.NoError(t, err)
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
 	assert.NoError(t, err)
 	assert.Equal(t, 401, r.StatusCode)
@@ -137,7 +141,7 @@ func Test_Service_EnvPath(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
@@ -149,7 +153,9 @@ func Test_Service_EnvPath(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
 	b, _ := ioutil.ReadAll(r.Body)
 
@@ -197,7 +203,7 @@ func Test_Service_JoinTopic(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -205,7 +211,9 @@ func Test_Service_JoinTopic(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -247,7 +255,7 @@ func Test_Service_DenyJoin(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -255,7 +263,9 @@ func Test_Service_DenyJoin(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -298,7 +308,7 @@ func Test_Service_DenyJoinServer(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -329,7 +339,7 @@ func Test_Service_EmptyTopics(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -337,7 +347,9 @@ func Test_Service_EmptyTopics(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -389,7 +401,7 @@ func Test_Service_BadTopics(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -397,7 +409,9 @@ func Test_Service_BadTopics(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -438,7 +452,7 @@ func Test_Service_BadTopicsLeave(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -446,7 +460,9 @@ func Test_Service_BadTopicsLeave(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -497,7 +513,7 @@ func Test_Service_Events(t *testing.T) {
 		}
 	})
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -505,7 +521,9 @@ func Test_Service_Events(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	<-done
 
@@ -561,7 +579,7 @@ func Test_Service_Warmup(t *testing.T) {
 		}
 	})
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -578,7 +596,9 @@ func Test_Service_Warmup(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	<-done
 
@@ -640,7 +660,7 @@ func Test_Service_Stop(t *testing.T) {
 		}
 	})
 
-	go func() { c.Serve() }()
+	go func() { _ = c.Serve() }()
 	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
@@ -657,7 +677,9 @@ func Test_Service_Stop(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	<-done
 

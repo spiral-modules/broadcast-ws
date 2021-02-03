@@ -8,7 +8,7 @@ import (
 
 func TestResponseWrapper_Body(t *testing.T) {
 	w := newValidator()
-	w.Write([]byte("hello"))
+	_, _ =w.Write([]byte("hello"))
 
 	assert.Equal(t, []byte("hello"), w.Body())
 }

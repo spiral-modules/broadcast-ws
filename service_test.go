@@ -70,7 +70,7 @@ func Test_HttpService_Echo(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
 	req, err := http.NewRequest("GET", "http://localhost:6041/", nil)
@@ -102,7 +102,7 @@ func Test_HttpService_Echo400(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
 	req, err := http.NewRequest("GET", "http://localhost:6040/", nil)
@@ -138,7 +138,7 @@ func Test_Service_EnvPath(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
 	req, err := http.NewRequest("GET", "http://localhost:6029/", nil)
@@ -198,7 +198,7 @@ func Test_Service_JoinTopic(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6038", Path: "/ws"}
@@ -248,7 +248,7 @@ func Test_Service_DenyJoin(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6037", Path: "/ws"}
@@ -299,7 +299,7 @@ func Test_Service_DenyJoinServer(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6037", Path: "/ws"}
@@ -330,7 +330,7 @@ func Test_Service_EmptyTopics(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6036", Path: "/ws"}
@@ -390,7 +390,7 @@ func Test_Service_BadTopics(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6035", Path: "/ws"}
@@ -439,7 +439,7 @@ func Test_Service_BadTopicsLeave(t *testing.T) {
 	}))
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6034", Path: "/ws"}
@@ -498,7 +498,7 @@ func Test_Service_Events(t *testing.T) {
 	})
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6033", Path: "/ws"}
@@ -562,7 +562,7 @@ func Test_Service_Warmup(t *testing.T) {
 	})
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	client, err := rp.(*rpc.Service).Client()
@@ -641,7 +641,7 @@ func Test_Service_Stop(t *testing.T) {
 	})
 
 	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	client, err := rp.(*rpc.Service).Client()

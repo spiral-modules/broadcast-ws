@@ -9,6 +9,9 @@
       "email": "wolfy.jd@gmail.com"
     }
   ],
+  "config": {
+    "vendor-dir": "vendor_php"
+  },
   "require": {
     "php": ">=7.2",
     "ext-json": "*",

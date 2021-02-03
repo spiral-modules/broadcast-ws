@@ -2,8 +2,9 @@ package ws
 
 import (
 	"encoding/json"
+
 	"github.com/gorilla/websocket"
-	"github.com/spiral/broadcast"
+	"github.com/spiral/broadcast/v2"
 )
 
 // ConnContext carries information about websocket connection and it's topics.

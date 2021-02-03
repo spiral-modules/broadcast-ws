@@ -2,10 +2,11 @@ package ws
 
 import (
 	"bytes"
-	"github.com/spiral/roadrunner/service/http/attributes"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/spiral/roadrunner/service/http/attributes"
 )
 
 type accessValidator struct {
@@ -31,7 +32,7 @@ func (w *accessValidator) copy(rw http.ResponseWriter) {
 		}
 	}
 
-	io.Copy(rw, w.buffer)
+	_, _ = io.Copy(rw, w.buffer)
 }
 
 // Header returns the header map that will be sent by WriteHeader.

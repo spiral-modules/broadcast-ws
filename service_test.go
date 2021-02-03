@@ -2,21 +2,22 @@ package ws
 
 import (
 	"encoding/json"
-	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
-	"github.com/sirupsen/logrus/hooks/test"
-	"github.com/spiral/broadcast"
-	"github.com/spiral/roadrunner/service"
-	"github.com/spiral/roadrunner/service/env"
-	rrhttp "github.com/spiral/roadrunner/service/http"
-	"github.com/spiral/roadrunner/service/rpc"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/spiral/broadcast/v2"
+	"github.com/spiral/roadrunner/service"
+	"github.com/spiral/roadrunner/service/env"
+	rrhttp "github.com/spiral/roadrunner/service/http"
+	"github.com/spiral/roadrunner/service/rpc"
+	"github.com/stretchr/testify/assert"
 )
 
 type testCfg struct {
@@ -68,8 +69,8 @@ func Test_HttpService_Echo(t *testing.T) {
 		}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
 	req, err := http.NewRequest("GET", "http://localhost:6041/", nil)
@@ -77,7 +78,9 @@ func Test_HttpService_Echo(t *testing.T) {
 
 	r, err := http.DefaultClient.Do(req)
 	assert.NoError(t, err)
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
 	b, _ := ioutil.ReadAll(r.Body)
 
@@ -100,8 +103,8 @@ func Test_HttpService_Echo400(t *testing.T) {
 		}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
 	req, err := http.NewRequest("GET", "http://localhost:6040/", nil)
@@ -109,7 +112,9 @@ func Test_HttpService_Echo400(t *testing.T) {
 
 	r, err := http.DefaultClient.Do(req)
 	assert.NoError(t, err)
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
 	assert.NoError(t, err)
 	assert.Equal(t, 401, r.StatusCode)
@@ -136,8 +141,8 @@ func Test_Service_EnvPath(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 3000)
 	defer c.Stop()
 
 	req, err := http.NewRequest("GET", "http://localhost:6029/", nil)
@@ -148,7 +153,9 @@ func Test_Service_EnvPath(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
 	b, _ := ioutil.ReadAll(r.Body)
 
@@ -196,15 +203,17 @@ func Test_Service_JoinTopic(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6038", Path: "/ws"}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -246,15 +255,17 @@ func Test_Service_DenyJoin(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6037", Path: "/ws"}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -297,8 +308,8 @@ func Test_Service_DenyJoinServer(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6037", Path: "/ws"}
@@ -328,15 +339,17 @@ func Test_Service_EmptyTopics(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6036", Path: "/ws"}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -388,15 +401,17 @@ func Test_Service_BadTopics(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6035", Path: "/ws"}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -437,15 +452,17 @@ func Test_Service_BadTopicsLeave(t *testing.T) {
 		broadcast: `{}`,
 	}))
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6034", Path: "/ws"}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	read := make(chan interface{})
 
@@ -496,15 +513,17 @@ func Test_Service_Events(t *testing.T) {
 		}
 	})
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	u := url.URL{Scheme: "ws", Host: "localhost:6033", Path: "/ws"}
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	<-done
 
@@ -560,8 +579,8 @@ func Test_Service_Warmup(t *testing.T) {
 		}
 	})
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	client, err := rp.(*rpc.Service).Client()
@@ -577,7 +596,9 @@ func Test_Service_Warmup(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	<-done
 
@@ -639,8 +660,8 @@ func Test_Service_Stop(t *testing.T) {
 		}
 	})
 
-	go func() { c.Serve() }()
-	time.Sleep(time.Millisecond * 100)
+	go func() { _ = c.Serve() }()
+	time.Sleep(time.Millisecond * 1000)
 	defer c.Stop()
 
 	client, err := rp.(*rpc.Service).Client()
@@ -656,7 +677,9 @@ func Test_Service_Stop(t *testing.T) {
 
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	assert.NoError(t, err)
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	<-done
 

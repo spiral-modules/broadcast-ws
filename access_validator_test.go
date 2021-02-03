@@ -1,13 +1,14 @@
 package ws
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestResponseWrapper_Body(t *testing.T) {
 	w := newValidator()
-	w.Write([]byte("hello"))
+	_, _ =w.Write([]byte("hello"))
 
 	assert.Equal(t, []byte("hello"), w.Body())
 }
